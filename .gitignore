@@ -1,0 +1,4 @@
+*.deb
+*.o
+.DS_Store
+temp/
