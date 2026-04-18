@@ -14,7 +14,7 @@ jobs:
 
       - name: Download Ghidra Official
         run: |
-          wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.4.2_build/ghidra_11.4.2_PUBLIC_20250826.zip -O ghidra.zip
+          wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.0.4_build/ghidra_12.0.4_PUBLIC_20260303.zip -O ghidra.zip
 
       - name: Prepare Package Structure
         run: |
@@ -31,10 +31,10 @@ jobs:
 
       - name: Build .deb package
         run: |
-          dpkg-deb --build package ghidra-unofficial_11.4.2_amd64.deb
+          dpkg-deb --build package ghidra-unofficial_12.0.4_amd64.deb
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ghidra-deb-package
-          path: ghidra-unofficial_11.4.2_amd64.deb
+          path: ghidra-unofficial_12.0.4_amd64.deb
