@@ -1,0 +1,40 @@
+name: Build Ghidra Debian Package
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout your scripts
+        uses: actions/checkout@v4
+
+      - name: Download Ghidra Official
+        run: |
+          wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.4.2_build/ghidra_11.4.2_PUBLIC_20250826.zip -O ghidra.zip
+
+      - name: Prepare Package Structure
+        run: |
+          mkdir -p package/DEBIAN
+          mkdir -p package/opt/ghidra
+          unzip ghidra.zip -d temp_ghidra
+          mv temp_ghidra/*/* package/opt/ghidra/
+          cp control postinst postrm package/DEBIAN/
+
+      - name: Set Permissions
+        run: |
+          chmod 755 package/DEBIAN/postinst package/DEBIAN/postrm
+          chmod -R 755 package/opt/ghidra
+
+      - name: Build .deb package
+        run: |
+          dpkg-deb --build package ghidra-unofficial_11.4.2_amd64.deb
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ghidra-deb-package
+          path: ghidra-unofficial_11.4.2_amd64.deb
