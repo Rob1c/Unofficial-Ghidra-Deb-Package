@@ -22,20 +22,20 @@ This `.deb` package is provided **as-is**, without warranty or guarantee of func
 
 - **Latest Version**: `12.0.4`
 - **Architecture**: `x86_64 (amd64)`
-- **Dependencies**: `openjdk-17-jre, python3, libgtk-3-0`
+- **Dependencies**: `openjdk-21-jre, python3, libgtk-3-0`
 - **Install location**: `/opt/ghidra/`
 
 ## Installation
 Via apt (**recommended**, because it automatically resolves dependencies):
 ```bash
-sudo apt install ghidra-[version].deb
+sudo apt install ./ghidra-[version].deb
 ```
 Or via dpkg:
 ```bash
 sudo dpkg -i ghidra-[version].deb
 ```
 ## Compatibility
-This package was developed and tested under `Ubuntu 24.04.3 LTS x86_64 ` and  `Debian 13 "Trixie" (Stable)`, but it should work fine under every debian-based system.
+This package was developed and tested under `Ubuntu 24.04.3 LTS x86_64 ` and `Debian 13 "Trixie" (Stable)`, but it should work fine under every debian-based system.
 ## Acknowledgements
 **All credit for Ghidra goes to the National Security Agency**. This project exists solely to support the reverse engineering community by improving accessibility and usability.
 
