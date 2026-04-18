@@ -1,0 +1,9 @@
+Package: Ghidra
+Version: 11.4.2
+Architecture: all
+Maintainer: Ryan Kurtz (NSA) <https://github.com/ryanmkurtz>
+Depends: default-jre, libgtk-3-0t64, python3
+Priority: optional 
+Section: devel
+Description: NSA's reverse engineering tool "Ghidra" (Apache License 2.0)
+Homepage: https://ghidralite.com/ ; https://github.com/NationalSecurityAgency/ghidra

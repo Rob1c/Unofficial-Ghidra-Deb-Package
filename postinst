@@ -1,0 +1,58 @@
+#!/bin/bash
+
+
+####################################################################################################
+#                                                                                                  #
+#  CC-BY-NC-4.0 License v4.0                                                                       #
+#                                                                                                  #
+#  Copyright (c) 2025 Roberto Chichiarelli "Robic"                                                 #
+#  Created by Roberto Chichiarelli                                                                 #
+#  GitHub: https://github.com/Rob1c                                                                #
+#  Development period: July – September 2025                                                       #
+#                                                                                                  #
+#  Any violation of the license terms may result                                                   #
+#  in termination of rights granted under this license.                                            #
+#                                                                                                  #
+#  For commercial licensing inquiries, contact: roberto.chichiarelli@gmail.com                     #
+#                                                                                                  #
+####################################################################################################
+
+
+set -e
+
+INSTALL_DIR="/opt/ghidra"
+EXEC="$INSTALL_DIR/ghidraRun"
+ICON="$INSTALL_DIR/docs/images/Ghidra_logo.png"
+DESKTOP_FILE="/usr/share/applications/ghidra.desktop"
+SYMLINK="/usr/bin/ghidra"
+
+# Ensure "ghidraRun" is executable
+chmod +x "$EXEC"
+
+# Create symlink in /usr/bin for everywhere starting from terminal
+ln -sf "$EXEC" "$SYMLINK"
+
+# Create .desktop file (for all users)
+mkdir -p "$(dirname "$DESKTOP_FILE")"
+cat <<EOF > "$DESKTOP_FILE"
+[Desktop Entry]
+Name=Ghidra
+Exec=$SYMLINK
+Type=Application
+StartupNotify=true
+Path=$INSTALL_DIR
+Icon=$ICON
+StartupWMClass=ghidra-Ghidra
+Categories=Development;Security;
+EOF
+
+# Update desktop database
+if command -v update-desktop-database >/dev/null; then
+    update-desktop-database /usr/share/applications
+fi
+
+# Update cache
+if command -v gtk-update-icon-cache >/dev/null && [ -d /usr/share/icons/hicolor ]; then
+    gtk-update-icon-cache -q /usr/share/icons/hicolor
+fi
+
