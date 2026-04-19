@@ -1,5 +1,5 @@
 # Unofficial Ghidra Debian Package
-[Unofficial Ghidra Debian Package, by Rob1c](usr/share/pixmaps/uno-ghidra.svg)
+![Unofficial Ghidra Debian Package, by Rob1c](usr/share/pixmaps/uno-ghidra.png)
 This repository provides an **unofficial `.deb` package** for installing [Ghidra](https://github.com/NationalSecurityAgency/ghidra), the open-source reverse engineering framework developed by the National Security Agency (NSA).
 
 ## Purpose
