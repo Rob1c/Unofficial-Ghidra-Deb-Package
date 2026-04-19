@@ -1,7 +1,7 @@
 <table>
   <tr>
     <td width="100">
-      <img src="usr/share/pixmaps/uno-ghidra.png" width="100" alt="Logo">
+      <img src="usr/share/pixmaps/uno-ghidra.png" width="150" alt="Logo">
     </td>
     <td>
       <h1>Unofficial Ghidra Debian Package</h1>
