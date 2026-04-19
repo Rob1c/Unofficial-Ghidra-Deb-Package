@@ -1,6 +1,6 @@
 <table>
   <tr>
-    <td width="100">
+    <td width="150">
       <img src="usr/share/pixmaps/uno-ghidra.png" width="150" alt="Logo">
     </td>
     <td>
