@@ -40,7 +40,7 @@ jobs:
           unzip ghidra.zip -d temp_ghidra
           mv temp_ghidra/*/* package/opt/ghidra/
 
-          cp debian/control debian/postinst debian/postrm package/DEBIAN/
+          cp DEBIAN/control DEBIAN/postinst DEBIAN/postrm package/DEBIAN/
           cp usr/share/applications/ghidra.desktop package/usr/share/applications/
           cp usr/share/pixmaps/uno-ghidra.svg package/usr/share/pixmaps/
 
