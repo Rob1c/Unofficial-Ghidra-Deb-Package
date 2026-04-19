@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Ghidra
+Exec=/usr/bin/ghidra
+Type=Application
+StartupNotify=true
+Path=/opt/ghidra
+Icon=uno-ghidra
+StartupWMClass=ghidra-Ghidra
+Categories=Development;Security;

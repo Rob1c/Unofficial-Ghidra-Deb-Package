@@ -3,6 +3,7 @@ name: Build Ghidra Debian Package
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -12,32 +13,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout your scripts
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download Ghidra Official
+      - name: Fetch Latest Ghidra Release Data
+        id: ghidra_api
         run: |
-          wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.0.4_build/ghidra_12.0.4_PUBLIC_20260303.zip -O ghidra.zip
+          JSON=$(curl -s https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest)
+          DOWNLOAD_URL=$(echo "$JSON" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
+          VERSION_TAG=$(echo "$JSON" | jq -r '.tag_name' | sed 's/Ghidra_//;s/_build//')
 
-      - name: Prepare Package Structure
+          echo "url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
+          echo "version=$VERSION_TAG" >> $GITHUB_OUTPUT
+
+      - name: Download Ghidra
+        run: wget ${{ steps.ghidra_api.outputs.url }} -O ghidra.zip
+
+      - name: Prepare Workspace
         run: |
           mkdir -p package/DEBIAN
           mkdir -p package/opt/ghidra
+          mkdir -p package/usr/bin
+          mkdir -p package/usr/share/applications
+          mkdir -p package/usr/share/pixmaps
+
           unzip ghidra.zip -d temp_ghidra
           mv temp_ghidra/*/* package/opt/ghidra/
-          cp control postinst postrm package/DEBIAN/
 
-      - name: Set Permissions
+          cp debian/control debian/postinst debian/postrm package/DEBIAN/
+          cp usr/share/applications/ghidra.desktop package/usr/share/applications/
+          cp usr/share/pixmaps/uno-ghidra.svg package/usr/share/pixmaps/
+
+      - name: Inject Version into Control
+        run: |
+          sed -i "s/Version:.*/Version: ${{ steps.ghidra_api.outputs.version }}/" package/DEBIAN/control
+
+      - name: Finalize Permissions
         run: |
           chmod 755 package/DEBIAN/postinst package/DEBIAN/postrm
           chmod -R 755 package/opt/ghidra
+          chmod -R 755 package/usr
 
-      - name: Build .deb package
+      - name: Build Package
         run: |
-          dpkg-deb --build package ghidra-unofficial_12.0.4_amd64.deb
+          dpkg-deb --build package "ghidra-unofficial_${{ steps.ghidra_api.outputs.version }}_amd64.deb"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ghidra-deb-package
-          path: ghidra-unofficial_12.0.4_amd64.deb
+          name: ghidra-package-${{ steps.ghidra_api.outputs.version }}
+          path: "*.deb"
