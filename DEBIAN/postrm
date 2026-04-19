@@ -2,3 +2,19 @@
 set -e
 
 rm -f /usr/share/applications/ghidra.desktop
+
+if [ -L "/usr/bin/ghidra" ]; then
+    rm /usr/bin/ghidra
+fi
+
+rm -f /usr/share/icons/hicolor/scalable/apps/ghidra.svg
+
+if [ -x "$(command -v update-desktop-database)" ]; then
+    update-desktop-database -q
+fi
+
+if [ -x "$(command -v gtk-update-icon-cache)" ]; then
+    gtk-update-icon-cache -f -t /usr/share/icons/hicolor
+fi
+
+echo "Ghidra removed successfully"
