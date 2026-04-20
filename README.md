@@ -47,7 +47,7 @@ sudo apt install ./ghidra-[version].deb
 ```
 Or via dpkg:
 ```bash
-sudo dpkg -i ghidra-[version].deb
+sudo dpkg -i ./ghidra-[version].deb
 ```
 ## Compatibility
 This package was developed and tested under `Ubuntu 24.04.3 LTS x86_64 ` and `Debian 13 "Trixie" (Stable)`, but it should work fine under every debian-based system.
