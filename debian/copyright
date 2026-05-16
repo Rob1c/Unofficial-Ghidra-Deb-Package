@@ -1,0 +1,18 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ghidra
+Source: https://github.com/NationalSecurityAgency/ghidra
+
+# Original software: Ghidra
+Files: *
+Copyright: 2019-2026 National Security Agency (NSA) <https://www.nsa.gov>
+License: Apache-2.0
+
+# The debian package
+Files: debian/*
+Copyright: 2026 Roberto Chichiarelli <roberto.chichiarelli@gmail.com>
+License: Apache-2.0
+# Apache-2.0, as it is derived from Ghidra, which is distributed under Apache 2.0
+
+License: Apache-2.0
+ On Debian systems, the full text of the Apache License version 2.0
+ can be found in the file `/usr/share/common-licenses/Apache-2.0'.

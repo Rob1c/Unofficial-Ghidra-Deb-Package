@@ -1,0 +1,17 @@
+Source: ghidra
+Section: devel
+Priority: optional
+Maintainer: Roberto Chichiarelli <roberto.chichiarelli@gmail.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.7.2
+Rules-Requires-Root: no
+
+Package: ghidra
+Version: 12.1.0
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}, openjdk-17-jre | default-jre (>= 17), bash, libgtk-3-0t64, python3
+Description: NSA Ghidra Software Reverse Engineering Suite
+ Ghidra is a software reverse engineering (SRE) suite of tools
+ developed by NSA's Research Directorate in support of the Cybersecurity
+ mission. It includes a disassembler, macro assembler, decompiler,
+ graphing, and emulation tools.

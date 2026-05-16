@@ -7,7 +7,7 @@ if [ -L "/usr/bin/ghidra" ]; then
     rm /usr/bin/ghidra
 fi
 
-rm -f /usr/share/icons/hicolor/scalable/apps/ghidra.svg
+rm -f /usr/share/icons/hicolor/scalable/ghidra.svg
 
 if [ -x "$(command -v update-desktop-database)" ]; then
     update-desktop-database -q

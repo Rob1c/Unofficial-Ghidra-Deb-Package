@@ -1,0 +1,24 @@
+Ghidra - Debian Packaging Repository
+Packaging Project Copyright (c) 2026 Roberto Chichiarelli
+
+-------------------------------------------------------------------------------
+1. DEBIAN PACKAGING FILES
+-------------------------------------------------------------------------------
+All the build scripts, configuration files, and metadata located inside the
+"debian/" directory have been created by Roberto Chichiarelli.
+
+These packaging files are licensed under the Apache License 2.0.
+
+-------------------------------------------------------------------------------
+2. UPSTREAM SOFTWARE (Ghidra Suite)
+-------------------------------------------------------------------------------
+This repository is designed to package "Ghidra", which is a registered
+trademark and software suite developed by the National Security Agency (NSA).
+
+- Upstream Copyright: National Security Agency (NSA)
+- Upstream License: Apache License 2.0
+- Official Repository: https://github.com/NationalSecurityAgency/ghidra
+
+The maintainer of this repository (Roberto Chichiarelli) does not claim any
+ownership or rights over the Ghidra core software, binaries, or documentation.
+Everything is distributed in accordance with the original Apache 2.0 license.

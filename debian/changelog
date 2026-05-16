@@ -1,0 +1,6 @@
+ghidra (12.1.0) unstable; urgency=low
+
+  * Added system path integration using symlinks.
+  * Configured explicit dependency for OpenJDK 17 or newer.
+
+ -- Roberto Chichiarelli <roberto.chichiarelli@gmail.com>  Sat, 16 May 2026 18:01:00 +0200

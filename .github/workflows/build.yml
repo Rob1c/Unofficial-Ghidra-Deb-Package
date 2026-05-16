@@ -3,63 +3,58 @@ name: Build Ghidra Debian Package
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
+# in view of the NodeJS 20 deprecation
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Fetch Latest Ghidra Release Data
-        id: ghidra_api
+      - name: Install Debian Build Dependencies
         run: |
-          JSON=$(curl -s https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest)
-          DOWNLOAD_URL=$(echo "$JSON" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
-          VERSION_TAG=$(echo "$JSON" | jq -r '.tag_name' | sed 's/Ghidra_//;s/_build//')
+          sudo apt-get update
+          sudo apt-get install -y devscripts debhelper dpkg-dev lintian fakeroot rsync
 
-          echo "url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
-          echo "version=$VERSION_TAG" >> $GITHUB_OUTPUT
-
-      - name: Download Ghidra
-        run: wget ${{ steps.ghidra_api.outputs.url }} -O ghidra.zip
-
-      - name: Prepare Workspace
+      - name: Extract Versioning Info
+        id: pkg_info
         run: |
-          mkdir -p package/DEBIAN
-          mkdir -p package/opt/ghidra
-          mkdir -p package/usr/bin
-          mkdir -p package/usr/share/applications
-          mkdir -p package/usr/share/pixmaps
+          DEB_VERSION=$(dpkg-parsechangelog -S Version)
+          UPSTREAM_VERSION=$(echo $DEB_VERSION | cut -d'-' -f1)
+          echo "DEB_VERSION=$DEB_VERSION" >> $GITHUB_ENV
+          echo "UPSTREAM_VERSION=$UPSTREAM_VERSION" >> $GITHUB_ENV
 
-          unzip ghidra.zip -d temp_ghidra
-          mv temp_ghidra/*/* package/opt/ghidra/
-
-          cp DEBIAN/control DEBIAN/postinst DEBIAN/postrm package/DEBIAN/
-          cp usr/share/applications/ghidra.desktop package/usr/share/applications/
-          cp usr/share/pixmaps/uno-ghidra.svg package/usr/share/pixmaps/
-
-      - name: Inject Version into Control
+      - name: Prepare Strict Debian Build Environment
         run: |
-          sed -i "s/Version:.*/Version: ${{ steps.ghidra_api.outputs.version }}/" package/DEBIAN/control
+          mkdir -p build_env/${{ github.event.repository.name }}-${UPSTREAM_VERSION}
+          rsync -a --exclude='.git' --exclude='build_env' ./ build_env/${{ github.event.repository.name }}-${UPSTREAM_VERSION}/
+          cd build_env
+          tar -cJvf ${{ github.event.repository.name }}_${UPSTREAM_VERSION}.orig.tar.xz --exclude='debian' ${{ github.event.repository.name }}-${UPSTREAM_VERSION}/
 
-      - name: Finalize Permissions
+      - name: Build Official Debian Package (debuild)
         run: |
-          chmod 755 package/DEBIAN/postinst package/DEBIAN/postrm
-          chmod -R 755 package/opt/ghidra
-          chmod -R 755 package/usr
+          cd build_env/${{ github.event.repository.name }}-${UPSTREAM_VERSION}
+          debuild -us -uc -b --no-lintian
 
-      - name: Build Package
+      - name: Create Clean Source Code Archives (Zip & Tar.gz)
         run: |
-          dpkg-deb --build package "ghidra-unofficial_${{ steps.ghidra_api.outputs.version }}_amd64.deb"
+          git archive --format=zip --output=${{ github.event.repository.name }}_${UPSTREAM_VERSION}_source.zip HEAD
+          git archive --format=tar.gz --output=${{ github.event.repository.name }}_${UPSTREAM_VERSION}_source.tar.gz HEAD
 
-      - name: Upload Artifact
+      - name: Upload All Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ghidra-package-${{ steps.ghidra_api.outputs.version }}
-          path: "*.deb"
+          name: ${{ github.event.repository.name }}-${{ env.DEB_VERSION }}-professional-build
+          path: |
+            build_env/*.deb
+            build_env/*.changes
+            build_env/*.buildinfo
+            *_source.zip
+            *_source.tar.gz
