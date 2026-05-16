@@ -7,7 +7,6 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-# in view of the NodeJS 20 deprecation...
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -21,7 +20,7 @@ jobs:
       - name: Install Debian Build Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential devscripts debhelper dpkg-dev lintian fakeroot rsync
+          sudo apt-get install -y build-essential devscripts debhelper dpkg-dev lintian fakeroot rsync jq wget unzip
 
       - name: Fetch Latest Ghidra Release Data
         id: ghidra_api
@@ -33,48 +32,47 @@ jobs:
           echo "url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
           echo "version=$VERSION_TAG" >> $GITHUB_OUTPUT
 
+          # set env vars
+          echo "UPSTREAM_VERSION=$VERSION_TAG" >> $GITHUB_ENV
+          echo "DEB_VERSION=${VERSION_TAG}-1" >> $GITHUB_ENV
+
       - name: Download Ghidra
         run: wget ${{ steps.ghidra_api.outputs.url }} -O ghidra.zip
 
-      - name: Prepare Workspace
+      - name: Prepare Strict Debian Build Environment
         run: |
-          mkdir -p package/debian
-          mkdir -p package/opt/ghidra
-          mkdir -p package/usr/bin
-          mkdir -p package/usr/share/applications
-          mkdir -p package/usr/share/pixmaps
+          # 1. creates debuild structure
+          STRUCTURE_DIR="build_env/${{ github.event.repository.name }}-${{ env.UPSTREAM_VERSION }}"
+          mkdir -p "$STRUCTURE_DIR"
 
+          # 2. cp packaging files (control, postinst, desktop, svg)
+          rsync -a --exclude='.git' --exclude='build_env' --exclude='ghidra.zip' ./ "$STRUCTURE_DIR/"
+
+          # 3. exract ghidra
+          mkdir -p "$STRUCTURE_DIR/opt/ghidra"
           unzip ghidra.zip -d temp_ghidra
-          mv temp_ghidra/*/* package/opt/ghidra/
+          mv temp_ghidra/*/* "$STRUCTURE_DIR/opt/ghidra/"
+          rm -rf temp_ghidra
 
-          cp debian/control debian/postinst debian/postrm package/debian/
-          cp usr/share/applications/ghidra.desktop package/usr/share/applications/
-          cp usr/share/icons/hicolor/scalable/apps/uno-ghidra.svg package/usr/share/icons/hicolor/scalable/apps
-
-      - name: Inject Version into Control
-        run: |
-          sed -i "s/Version:.*/Version: ${{ steps.ghidra_api.outputs.version }}/" package/debian/control
-
-      - name: Finalize Permissions
-        run: |
-          chmod 755 package/debian/postinst package/debian/postrm
-          chmod -R 755 package/opt/ghidra
-          chmod -R 755 package/usr
+          # 4. generates source (excluding debian folder)
+          cd build_env
+          tar -cJvf ${{ github.event.repository.name }}_${{ env.UPSTREAM_VERSION }}.orig.tar.xz --exclude='debian' ${{ github.event.repository.name }}-${{ env.UPSTREAM_VERSION }}/
 
       - name: Build Official Debian Package (debuild)
         run: |
-          cd build_env/${{ github.event.repository.name }}-${UPSTREAM_VERSION}
-          debuild -us -uc
+          cd build_env/${{ github.event.repository.name }}-${{ env.UPSTREAM_VERSION }}
+          chmod +x debian/postinst debian/postrm debian/rules
+          debuild -b -us -uc
 
       - name: Create Clean Source Code Archives (Zip & Tar.gz)
         run: |
-          git archive --format=zip --output=${{ github.event.repository.name }}_${UPSTREAM_VERSION}_source.zip HEAD
-          git archive --format=tar.gz --output=${{ github.event.repository.name }}_${UPSTREAM_VERSION}_source.tar.gz HEAD
+          git archive --format=zip --output=${{ github.event.repository.name }}_${{ env.UPSTREAM_VERSION }}_source.zip HEAD
+          git archive --format=tar.gz --output=${{ github.event.repository.name }}_${{ env.UPSTREAM_VERSION }}_source.tar.gz HEAD
 
       - name: Upload All Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-${{ env.DEB_VERSION }}
+          name: ${{ github.event.repository.name }}-${{ env.DEB_VERSION }}-build
           path: |
             build_env/*.deb
             build_env/*.changes
