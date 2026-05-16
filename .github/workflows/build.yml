@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-
+# in view of Node 20 deprecation
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -44,17 +44,15 @@ jobs:
           VERSION="${{ env.UPSTREAM_VERSION }}"
           STRUCTURE_DIR="build_env/${REPO}-${VERSION}"
 
-          # 1. Crea struttura debuild
+          # 1. create debuild structure
           mkdir -p "$STRUCTURE_DIR"
 
-          # 2. Copia i file di packaging (incluso debian/)
+          # 2. cp packaging files (with debian/)
           rsync -a --exclude='.git' --exclude='build_env' --exclude='ghidra.zip' ./ "$STRUCTURE_DIR/"
 
-          # 3. Estrai Ghidra in opt/ghidra/
-          #    Il tarbomb di Ghidra è: ghidra_VERSION_PUBLIC/ -> tutti i file dentro
+          # 3. exract Ghidra in opt/ghidra/
           mkdir -p "$STRUCTURE_DIR/opt/ghidra"
           unzip -q ghidra.zip -d temp_ghidra
-          # Ghidra si estrae come ghidra_X.Y.Z_PUBLIC/*, spostiamo il contenuto
           GHIDRA_INNER=$(find temp_ghidra -mindepth 1 -maxdepth 1 -type d | head -1)
           if [ -z "$GHIDRA_INNER" ]; then
             echo "ERROR: Ghidra zip extraction failed or unexpected structure"
@@ -64,7 +62,7 @@ jobs:
           mv "$GHIDRA_INNER"/* "$STRUCTURE_DIR/opt/ghidra/"
           rm -rf temp_ghidra
 
-          # 4. Aggiorna il changelog con la versione reale (evita desync)
+          # 4. updates changelog with latest version
           cat > "$STRUCTURE_DIR/debian/changelog" <<EOF
           ghidra (${VERSION}-1) unstable; urgency=low
 
@@ -73,7 +71,7 @@ jobs:
            -- Roberto Chichiarelli <roberto.chichiarelli@gmail.com>  $(date -R)
           EOF
 
-          # 5. Genera il tarball orig (senza la cartella debian/)
+          # 5. generate tarball
           cd build_env
           tar -cJf "${REPO}_${VERSION}.orig.tar.xz" \
             --exclude="${REPO}-${VERSION}/debian" \
