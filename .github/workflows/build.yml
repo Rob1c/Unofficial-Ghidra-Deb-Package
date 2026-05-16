@@ -41,7 +41,7 @@ jobs:
       - name: Build Official Debian Package (debuild)
         run: |
           cd build_env/${{ github.event.repository.name }}-${UPSTREAM_VERSION}
-          debuild -us -uc -b --no-lintian
+          debuild -us -uc
 
       - name: Create Clean Source Code Archives (Zip & Tar.gz)
         run: |
