@@ -1,5 +1,6 @@
 *.deb
 *.o
 *.zip
+Unofficial*
 .DS_Store
 temp/

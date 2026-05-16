@@ -43,11 +43,11 @@ This `.deb` package is provided **as-is**, without warranty or guarantee of func
 ## Installation
 Via apt (**recommended**, because it automatically resolves dependencies):
 ```bash
-sudo apt install ./ghidra-[version].deb
+sudo apt install ./ghidra_[version]_amd64.deb
 ```
 Or via dpkg:
 ```bash
-sudo dpkg -i ./ghidra-[version].deb
+sudo dpkg -i ./ghidra_[version]_amd64.deb
 ```
 ## Compatibility
 This package was developed and tested under `Ubuntu 24.04.3 LTS x86_64 ` and `Debian 13 "Trixie" (Stable)`, but it should work fine under every debian-based system.

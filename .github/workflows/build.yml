@@ -3,8 +3,16 @@ name: Build Ghidra Debian Package
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - 'docs/**'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - 'docs/**'
   workflow_dispatch:
 # in view of Node 20 deprecation
 env:
