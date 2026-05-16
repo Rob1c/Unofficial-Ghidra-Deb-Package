@@ -7,7 +7,6 @@ Standards-Version: 4.7.2
 Rules-Requires-Root: no
 
 Package: ghidra
-Version: 12.1.0
 Architecture: amd64
 Depends: ${shlibs:Depends}, ${misc:Depends}, openjdk-17-jre | default-jre (>= 17), bash, libgtk-3-0t64, python3
 Description: NSA Ghidra Software Reverse Engineering Suite
