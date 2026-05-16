@@ -51,7 +51,7 @@ jobs:
       - name: Upload All Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-${{ env.DEB_VERSION }}-professional-build
+          name: ${{ github.event.repository.name }}-${{ env.DEB_VERSION }}
           path: |
             build_env/*.deb
             build_env/*.changes
