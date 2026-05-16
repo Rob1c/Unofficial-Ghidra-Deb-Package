@@ -49,7 +49,7 @@ jobs:
 
           cp debian/control debian/postinst debian/postrm package/debian/
           cp usr/share/applications/ghidra.desktop package/usr/share/applications/
-          cp usr/share/pixmaps/uno-ghidra.svg package/usr/share/pixmaps/
+          cp usr/share/icons/hicolor/scalable/apps/uno-ghidra.svg package/usr/share/icons/hicolor/scalable/apps/
 
       - name: Inject Version into Control
         run: |
