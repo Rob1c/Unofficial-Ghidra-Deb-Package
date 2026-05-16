@@ -35,7 +35,7 @@ This `.deb` package is provided **as-is**, without warranty or guarantee of func
 
 ## 📦 Package Details
 
-- **Latest Version**: `12.0.4`
+- **Latest Version**: `12.1.0`
 - **Architecture**: `x86_64 (amd64)`
 - **Dependencies**: `openjdk-21-jre, python3, libgtk-3-0`
 - **Install location**: `/opt/ghidra/`
