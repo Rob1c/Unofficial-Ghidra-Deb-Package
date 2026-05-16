@@ -32,42 +32,75 @@ jobs:
           echo "url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
           echo "version=$VERSION_TAG" >> $GITHUB_OUTPUT
 
-          # set env vars
           echo "UPSTREAM_VERSION=$VERSION_TAG" >> $GITHUB_ENV
           echo "DEB_VERSION=${VERSION_TAG}-1" >> $GITHUB_ENV
 
       - name: Download Ghidra
-        run: wget ${{ steps.ghidra_api.outputs.url }} -O ghidra.zip
+        run: wget "${{ steps.ghidra_api.outputs.url }}" -O ghidra.zip
 
       - name: Prepare Strict Debian Build Environment
         run: |
-          # 1. creates debuild structure
-          STRUCTURE_DIR="build_env/${{ github.event.repository.name }}-${{ env.UPSTREAM_VERSION }}"
+          REPO="${{ github.event.repository.name }}"
+          VERSION="${{ env.UPSTREAM_VERSION }}"
+          STRUCTURE_DIR="build_env/${REPO}-${VERSION}"
+
+          # 1. Crea struttura debuild
           mkdir -p "$STRUCTURE_DIR"
 
-          # 2. cp packaging files (control, postinst, desktop, svg)
+          # 2. Copia i file di packaging (incluso debian/)
           rsync -a --exclude='.git' --exclude='build_env' --exclude='ghidra.zip' ./ "$STRUCTURE_DIR/"
 
-          # 3. exract ghidra
+          # 3. Estrai Ghidra in opt/ghidra/
+          #    Il tarbomb di Ghidra è: ghidra_VERSION_PUBLIC/ -> tutti i file dentro
           mkdir -p "$STRUCTURE_DIR/opt/ghidra"
-          unzip ghidra.zip -d temp_ghidra
-          mv temp_ghidra/*/* "$STRUCTURE_DIR/opt/ghidra/"
+          unzip -q ghidra.zip -d temp_ghidra
+          # Ghidra si estrae come ghidra_X.Y.Z_PUBLIC/*, spostiamo il contenuto
+          GHIDRA_INNER=$(find temp_ghidra -mindepth 1 -maxdepth 1 -type d | head -1)
+          if [ -z "$GHIDRA_INNER" ]; then
+            echo "ERROR: Ghidra zip extraction failed or unexpected structure"
+            ls -la temp_ghidra/
+            exit 1
+          fi
+          mv "$GHIDRA_INNER"/* "$STRUCTURE_DIR/opt/ghidra/"
           rm -rf temp_ghidra
 
-          # 4. generates source (excluding debian folder)
+          # 4. Aggiorna il changelog con la versione reale (evita desync)
+          cat > "$STRUCTURE_DIR/debian/changelog" <<EOF
+          ghidra (${VERSION}-1) unstable; urgency=low
+
+            * Automated build for Ghidra ${VERSION}.
+
+           -- Roberto Chichiarelli <roberto.chichiarelli@gmail.com>  $(date -R)
+          EOF
+
+          # 5. Genera il tarball orig (senza la cartella debian/)
           cd build_env
-          tar -cJvf ${{ github.event.repository.name }}_${{ env.UPSTREAM_VERSION }}.orig.tar.xz --exclude='debian' ${{ github.event.repository.name }}-${{ env.UPSTREAM_VERSION }}/
+          tar -cJf "${REPO}_${VERSION}.orig.tar.xz" \
+            --exclude="${REPO}-${VERSION}/debian" \
+            "${REPO}-${VERSION}/"
 
       - name: Build Official Debian Package (debuild)
         run: |
-          cd build_env/${{ github.event.repository.name }}-${{ env.UPSTREAM_VERSION }}
+          REPO="${{ github.event.repository.name }}"
+          VERSION="${{ env.UPSTREAM_VERSION }}"
+          cd "build_env/${REPO}-${VERSION}"
           chmod +x debian/postinst debian/postrm debian/rules
           debuild -b -us -uc
 
+      - name: Debug - List build output
+        if: always()
+        run: |
+          echo "=== build_env contents ==="
+          ls -lah build_env/
+          echo "=== all .deb files ==="
+          find . -name "*.deb" | xargs ls -lah 2>/dev/null || echo "No .deb found"
+
       - name: Create Clean Source Code Archives (Zip & Tar.gz)
         run: |
-          git archive --format=zip --output=${{ github.event.repository.name }}_${{ env.UPSTREAM_VERSION }}_source.zip HEAD
-          git archive --format=tar.gz --output=${{ github.event.repository.name }}_${{ env.UPSTREAM_VERSION }}_source.tar.gz HEAD
+          REPO="${{ github.event.repository.name }}"
+          VERSION="${{ env.UPSTREAM_VERSION }}"
+          git archive --format=zip --output="${REPO}_${VERSION}_source.zip" HEAD
+          git archive --format=tar.gz --output="${REPO}_${VERSION}_source.tar.gz" HEAD
 
       - name: Upload All Artifacts
         uses: actions/upload-artifact@v4

@@ -1,2 +1,3 @@
-usr/share/applications/ghidra.desktop          usr/share/applications/
-usr/share/icons/hicolor/scalable/apps/uno-ghidra.svg  usr/share/icons/hicolor/scalable/apps/
+opt/ghidra /
+usr/share/applications/ghidra.desktop usr/share/applications/
+usr/share/icons/hicolor/scalable/apps/uno-ghidra.svg usr/share/icons/hicolor/scalable/apps/
