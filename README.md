@@ -50,9 +50,7 @@ Or via dpkg:
 sudo dpkg -i ./ghidra_[version]_amd64.deb
 ```
 ## Compatibility
-This package was developed and tested under `Ubuntu 24.04.3 LTS x86_64 ` and `Debian 13 "Trixie" (Stable)`. 
-Since it is written in Bash (.sh), it is cross-platform compatible. It can therefore be used on any operating system.
-
+This package was developed and tested under `Ubuntu 24.04.3 LTS x86_64 ` and `Debian 13 "Trixie" (Stable)`, but it should work fine under every debian-based system.
 ## Acknowledgements
 **All credit for Ghidra goes to the National Security Agency**. This project exists solely to support the reverse engineering community by improving accessibility and usability.
 
