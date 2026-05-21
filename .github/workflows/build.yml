@@ -7,12 +7,16 @@ on:
       - '**.md'
       - 'LICENSE'
       - 'docs/**'
+      - '**.png'
+      - '**.svg'
   pull_request:
     branches: [ "main" ]
     paths-ignore:
       - '**.md'
       - 'LICENSE'
       - 'docs/**'
+      - '**.png'
+      - '**.svg'
   workflow_dispatch:
 # in view of Node 20 deprecation
 env:
@@ -118,20 +122,3 @@ jobs:
             build_env/*.buildinfo
             *_source.zip
             *_source.tar.gz
-
-
-      - name: Trigger apt-repo update
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.APT_REPO_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/Rob1c/apt-repo/dispatches \
-            -d '{
-              "event_type": "new-package",
-              "client_payload": {
-                "repo": "Unofficial-Ghidra-Deb-Package",
-                "run_id": "${{ github.run_id }}",
-                "package": "${{ github.event.repository.name }}-${{ env.DEB_VERSION }}-build"
-              }
-            }'
