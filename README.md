@@ -8,7 +8,7 @@
       <img src="https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/actions/workflows/build.yml/badge.svg" alt="Build Status">     
       <img src="https://img.shields.io/badge/version-12.1.0-blue" alt="Version">
       <img src="https://img.shields.io/badge/license-Apache--2.0-green" alt="License"> 
-      <img src="https://img.shields.io/badge/platform-Debian%20|%20Ubuntu-orange" alt="Platform">
+      <img src="https://img.shields.io/badge/platform-Debian%20Based%20Systems-red" alt="Platform">
     </td>
   </tr>
 </table>
@@ -33,7 +33,7 @@ This `.deb` package is provided **as-is**, without warranty or guarantee of func
 
 ## 📦 Package Details
 
-- **Latest Version**: `12.1.0`
+- **Latest Version**: `12.1.2`
 - **Architecture**: `x86_64 (amd64)`
 - **Dependencies**: `openjdk-21-jre, python3, libgtk-3-0`
 - **Install location**: `/opt/ghidra/`
