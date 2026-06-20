@@ -13,8 +13,6 @@
   </tr>
 </table>
 
----
-
 This repository provides an **unofficial `.deb` package** for installing [Ghidra](https://github.com/NationalSecurityAgency/ghidra), the open-source reverse engineering framework developed by the National Security Agency (NSA).
 
 ## Purpose
