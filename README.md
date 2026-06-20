@@ -6,7 +6,7 @@
     <td>
       <h1>Unofficial Ghidra Debian Package</h1>
       <img src="https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/actions/workflows/build.yml/badge.svg" alt="Build Status">     
-      <img src="https://img.shields.io/badge/version-12.1.0-blue" alt="Version">
+      <img src="https://img.shields.io/badge/version-12.1.2-blue" alt="Version">
       <img src="https://img.shields.io/badge/license-Apache--2.0-green" alt="License"> 
       <img src="https://img.shields.io/badge/platform-Debian%20Based%20Systems-red" alt="Platform">
     </td>
