@@ -36,14 +36,20 @@ jobs:
       - name: Fetch Latest Ghidra
         id: nsa
         run: |
-          TAG=$(curl -s https://github.com | jq -r .tag_name)
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          RAW_TAG=$(curl -s https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest | jq -r '.tag_name // empty')
+          if [ -z "$RAW_TAG" ]; then
+            echo "ERROR: unable to fetch latest Ghidra tag from NSA repo"
+            exit 1
+          fi
+          # normalize to the same format used for our own release tags (e.g. Ghidra_11.2_build -> 11.2)
+          VERSION=$(echo "$RAW_TAG" | sed 's/Ghidra_//;s/_build//')
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
 
       # fetch latest UNOFFICIAL Ghidra deb package tag
       - name: Fetch Latest UnoDebGhidra
         id: unodeb
         run: |
-          TAG=$(curl -s https://github.com{{ github.repository }}/releases/latest | jq -r .tag_name || echo "")
+          TAG=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.tag_name // empty')
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       # compare versions and trigger
@@ -59,7 +65,7 @@ jobs:
           echo "Event: $EVENT_NAME"
 
           # Event type 1: Human (push, "run workflow"...)
-          # Nota gli spazi corretti dentro i blocchi [ ] e il simbolo $ mancante su UNODEB_VERSION prima del fix
+          # Entrambi i tag sono ora normalizzati nello stesso formato (es. "11.2") negli step precedenti
           if [ "$EVENT_NAME" = "push" ] || [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$EVENT_NAME" = "pull_request" ]; then
             echo "Human activation detected. Triggering build"
             echo "should_build=true" >> $GITHUB_OUTPUT
