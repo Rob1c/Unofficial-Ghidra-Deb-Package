@@ -18,13 +18,68 @@ on:
       - '**.png'
       - '**.svg'
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
 # in view of Node 20 deprecation
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.compare.outputs.should_build }}
+
+    steps:
+      # fetch latest Ghidra tag (official NSA repo)
+      - name: Fetch Latest Ghidra
+        id: nsa
+        run: |
+          TAG=$(curl -s https://github.com | jq -r .tag_name)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      # fetch latest UNOFFICIAL Ghidra deb package tag
+      - name: Fetch Latest UnoDebGhidra
+        id: unodeb
+        run: |
+          TAG=$(curl -s https://github.com{{ github.repository }}/releases/latest | jq -r .tag_name || echo "")
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      # compare versions and trigger
+      - name: Compare Versions and Trigger
+        id: compare
+        run: |
+          NSA_VERSION="${{ steps.nsa.outputs.tag }}"
+          UNODEB_VERSION="${{ steps.unodeb.outputs.tag }}"
+          EVENT_NAME="${{ github.event_name }}"
+
+          echo "Detected Ghidra version: $NSA_VERSION"
+          echo "Detected Unofficial Deb Package version: $UNODEB_VERSION"
+          echo "Event: $EVENT_NAME"
+
+          # Event type 1: Human (push, "run workflow"...)
+          # Nota gli spazi corretti dentro i blocchi [ ] e il simbolo $ mancante su UNODEB_VERSION prima del fix
+          if [ "$EVENT_NAME" = "push" ] || [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$EVENT_NAME" = "pull_request" ]; then
+            echo "Human activation detected. Triggering build"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+
+          # Event type 2: time-scheduled compare, the latest Ghidra version is different from the UnoDeb one
+          elif [ "$NSA_VERSION" != "$UNODEB_VERSION" ]; then
+            echo "Different Ghidra version detected. Triggering build"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+
+          # Event type 3: both versions are equal
+          else
+            echo "No updates were found. Skipping build"
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          fi
+
   build:
     runs-on: ubuntu-latest
+    needs: check
+    if: needs.check.outputs.should_build == 'true'
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
