@@ -64,7 +64,7 @@ jobs:
           echo "Detected Unofficial Deb Package version: $UNODEB_VERSION"
           echo "Event: $EVENT_NAME"
 
-          # Event type 1: Human (push, "run workflow"...)
+          # Event type 1: Human (push, "run workflow" etc...)
           # Entrambi i tag sono ora normalizzati nello stesso formato (es. "11.2") negli step precedenti
           if [ "$EVENT_NAME" = "push" ] || [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$EVENT_NAME" = "pull_request" ]; then
             echo "Human activation detected. Triggering build"
