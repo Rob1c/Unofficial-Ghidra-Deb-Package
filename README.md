@@ -9,6 +9,7 @@
       <img src="https://img.shields.io/badge/version-12.1.2-blue" alt="Version">
       <img src="https://img.shields.io/badge/license-Apache--2.0-green" alt="License"> 
       <img src="https://img.shields.io/badge/platform-Debian%20Based%20Systems-red" alt="Platform">
+      <img src="https://img.shields.io/badge/GPG-signed-success" alt="GPG Signed">
     </td>
   </tr>
 </table>
@@ -17,7 +18,7 @@ This repository provides an **unofficial `.deb` package** for installing [Ghidra
 
 ## Purpose
 
-The goal of this project is to simplify the installation of Ghidra on Debian-based Linux distributions by offering a pre-built `.deb` package.  
+The goal of this project is to simplify the installation of Ghidra on Debian-based Linux distributions by offering a pre-built `.deb` package, kept automatically in sync with upstream releases.
 This initiative is intended as a community contribution and is **not affiliated with, endorsed by, or sponsored by the NSA or the official Ghidra development team**.
 
 ## ⚖️ License Compliance
@@ -39,24 +40,92 @@ This `.deb` package is provided **as-is**, without warranty or guarantee of func
 - **Install location**: `/opt/ghidra/`
 
 ## Installation
-Via apt (**recommended**, because it automatically resolves dependencies):
+
+### Option A — APT repository (recommended)
+
+Adds a real package source: future Ghidra updates arrive via `apt upgrade`, no manual re-download needed. The build is automated and re-checked daily against upstream — see [Update policy](#update-policy).
+
+```bash
+# 1. Add the signing key
+curl -fsSL https://rob1c.github.io/Unofficial-Ghidra-Deb-Package/ghidra-deb-signing-key.asc \
+  | sudo gpg --dearmor -o /usr/share/keyrings/ghidra-deb.gpg
+
+# 2. Add the repository
+echo "deb [signed-by=/usr/share/keyrings/ghidra-deb.gpg] https://rob1c.github.io/Unofficial-Ghidra-Deb-Package stable main" \
+  | sudo tee /etc/apt/sources.list.d/ghidra-deb.list
+
+# 3. Install
+sudo apt update
+sudo apt install ghidra
+```
+
+### Option B — Single signed `.deb`
+
+Download the latest `.deb` from [Releases](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/releases). **We strongly recommend verifying it first** — see [Verifying a release](#verifying-a-release) below.
+
+Via apt (**recommended over dpkg**, because it automatically resolves dependencies):
 ```bash
 sudo apt install ./ghidra_[version]_amd64.deb
 ```
 Or via dpkg:
 ```bash
 sudo dpkg -i ./ghidra_[version]_amd64.deb
+sudo apt -f install   # resolve any missing dependencies
 ```
+
 ## Compatibility
-This package was developed and tested under `Ubuntu 24.04.3 LTS x86_64 ` and `Debian 13 "Trixie" (Stable)`, but it should work fine under every debian-based system.
+This package was developed and tested under `Ubuntu 24.04.3 LTS x86_64` and `Debian 13 "Trixie" (Stable)`, but it should work fine under every Debian-based system.
+
+---
+
+## Why trust this
+
+This is a third-party package — not an official NSA/Ghidra or Debian artifact. You shouldn't have to take that on faith, so here's exactly what's verifiable and how to check it yourself.
+
+| Concern | What this project does | How to check |
+|---|---|---|
+| **Are the binaries unmodified?** | Pulled directly from the official [Ghidra GitHub Releases](https://github.com/NationalSecurityAgency/ghidra/releases), zero patching of the application itself | Compare against the upstream release assets/checksums |
+| **Is the build process visible?** | 100% built via [GitHub Actions](.github/workflows/build.yml) on a public, auditable workflow — no local/manual builds ever published | Read the workflow file directly, or check the [Actions tab](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/actions) for run history |
+| **Is the `.deb` itself authentic?** | Every release is signed with a dedicated GPG key | `gpg --verify ghidra_<version>_amd64.deb.asc ghidra_<version>_amd64.deb` |
+| **Has it been tampered with after signing?** | SHA256 checksums published and signed for every artifact | `sha256sum -c ghidra_<version>_amd64.deb.sha256` |
+| **Will it stay up to date?** | CI checks daily for new upstream Ghidra releases and rebuilds automatically — see [Update policy](#update-policy) | Check the [Actions tab](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/actions) for the scheduled run history |
+| **Who is responsible for this?** | Maintained by [@Rob1c](https://github.com/Rob1c), single maintainer, no anonymous publishing | Commit history and release authorship are public |
+
+**Signing key fingerprint:** `XXXX XXXX XXXX XXXX XXXX  XXXX XXXX XXXX XXXX XXXX`
+Public key: [`ghidra-deb-signing-key.asc`](https://rob1c.github.io/Unofficial-Ghidra-Deb-Package/ghidra-deb-signing-key.asc) · also published on [keyserver.ubuntu.com](https://keyserver.ubuntu.com)
+
+> Publishing the key in two independent places (this repo's APT publish branch and a public keyserver) means a compromise of one doesn't let an attacker silently replace the other without it being noticeable.
+
+### Verifying a release
+
+```bash
+# Import the key once
+curl -fsSL https://rob1c.github.io/Unofficial-Ghidra-Deb-Package/ghidra-deb-signing-key.asc | gpg --import
+
+# Verify the .deb against its signature
+gpg --verify ghidra_<version>_amd64.deb.asc ghidra_<version>_amd64.deb
+
+# Verify the checksum file itself is signed and untampered
+gpg --verify ghidra_<version>_amd64.deb.sha256.asc ghidra_<version>_amd64.deb.sha256
+sha256sum -c ghidra_<version>_amd64.deb.sha256
+```
+
+If both checks pass (`gpg` reports `Good signature`), the file you have is byte-for-byte what this project's CI produced and signed.
+
+### Update policy
+
+- CI checks daily (`schedule: cron`) whether a new Ghidra release exists upstream; if so, it rebuilds and re-signs automatically — no manual step required.
+- Every release is versioned as `<ghidra-version>-<package-revision>` (e.g. `12.1.2-1`) so you always know exactly which upstream version you're running.
+
+---
+
 ## Acknowledgements
 **All credit for Ghidra goes to the National Security Agency**. This project exists solely to support the reverse engineering community by improving accessibility and usability.
-
 
 ## 🤝 Willingness to Collaborate
 If the NSA or the official Ghidra development team finds this packaging effort useful, **I am fully open to transferring ownership, collaborating, or integrating this work into the official distribution channels.** My intention is to support the reverse engineering community and contribute respectfully to the Ghidra ecosystem.
 
 ## Feedback & Contributions
-If you encounter issues or have suggestions, feel free to open an issue in this repository. You may also consider submitting feedback to [the official Ghidra GitHub](https://github.com/NationalSecurityAgency/ghidra) repository if relevant.
+If you encounter issues or have suggestions, feel free to open an issue in this repository. Security-related reports are especially welcome. You may also consider submitting feedback to [the official Ghidra GitHub](https://github.com/NationalSecurityAgency/ghidra) repository if relevant.
 
 #### **Disclaimer**: This repository is maintained independently and is not affiliated with the United States Government or the NSA. Use of the Ghidra name is purely descriptive and does not imply endorsement.
