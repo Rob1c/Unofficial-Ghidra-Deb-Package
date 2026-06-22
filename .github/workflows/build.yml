@@ -211,7 +211,7 @@ jobs:
         run: |
           cd dist
           for deb in *.deb; do
-            echo "Firma di $deb in corso"
+            echo "Signing $deb ..."
             sha256sum "$deb" > "${deb}.sha256"
             gpg --batch --yes --pinentry-mode loopback \
               --passphrase "${{ secrets.GPG_PASSPHRASE }}" \
