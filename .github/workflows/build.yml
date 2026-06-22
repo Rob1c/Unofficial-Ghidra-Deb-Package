@@ -210,7 +210,7 @@ jobs:
       - name: Sign .deb and generate checksums
         run: |
           cd dist
-          for deb in *.deb; do
+          for deb in build_env/*.deb; do
             echo "Signing $deb ..."
             sha256sum "$deb" > "${deb}.sha256"
             gpg --batch --yes --pinentry-mode loopback \
@@ -228,9 +228,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/*.deb
-            dist/*.asc
-            dist/*.sha256
-            dist/*.sha256.asc
+            dist/build_env/*.deb
+            dist/build_env/*.asc
+            dist/build_env/*.sha256
+            dist/build_env/*.sha256.asc
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
