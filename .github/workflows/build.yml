@@ -183,3 +183,54 @@ jobs:
             build_env/*.buildinfo
             *_source.zip
             *_source.tar.gz
+
+  sign-and-publish:
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.check.outputs.should_build == 'true'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ github.event.repository.name }}-*-build
+          merge-multiple: true
+          path: dist/
+
+      - name: Install GPG Tools
+        run: sudo apt-get update && sudo apt-get install -y gnupg
+
+      - name: Import GPG Signing Key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+
+      - name: Sign .deb and generate checksums
+        run: |
+          cd dist
+          for deb in *.deb; do
+            echo "Firma di $deb in corso"
+            sha256sum "$deb" > "${deb}.sha256"
+            gpg --batch --yes --pinentry-mode loopback \
+              --passphrase "${{ secrets.GPG_PASSPHRASE }}" \
+              --local-user "${{ secrets.GPG_KEY_ID }}" \
+              --detach-sign --armor -o "${deb}.asc" "$deb"
+            gpg --batch --yes --pinentry-mode loopback \
+              --passphrase "${{ secrets.GPG_PASSPHRASE }}" \
+              --local-user "${{ secrets.GPG_KEY_ID }}" \
+              --detach-sign --armor -o "${deb}.sha256.asc" "${deb}.sha256"
+          done
+          ls -lah
+
+      - name: Create GitHub Release with signed artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.deb
+            dist/*.asc
+            dist/*.sha256
+            dist/*.sha256.asc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
