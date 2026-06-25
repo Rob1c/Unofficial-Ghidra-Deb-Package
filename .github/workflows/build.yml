@@ -3,20 +3,14 @@ name: Build Ghidra Debian Package
 on:
   push:
     branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE'
-      - 'docs/**'
-      - '**.png'
-      - '**.svg'
+    paths:
+      - 'debian/**'
+      - '.github/workflows/build.yml'
   pull_request:
     branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE'
-      - 'docs/**'
-      - '**.png'
-      - '**.svg'
+    paths:
+      - 'debian/**'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
@@ -229,6 +223,21 @@ jobs:
           ls -lah
 
       - name: Create GitHub Release with signed artifacts
+        uses: softprops/action-gh-release@v2
+        continue-on-error: true
+        id: release_attempt
+        with:
+          tag_name: v${{ needs.build.outputs.version }}
+          files: |
+            dist/build_env/*.deb
+            dist/build_env/*.asc
+            dist/build_env/*.sha256
+            dist/build_env/*.sha256.asc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retry Release if first attempt failed
+        if: steps.release_attempt.outcome == 'failure'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.build.outputs.version }}
