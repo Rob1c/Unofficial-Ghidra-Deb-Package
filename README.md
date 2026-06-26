@@ -41,7 +41,7 @@ This `.deb` package is provided **as-is**, without warranty or guarantee of func
 
 ## Installation
 
-Download the latest signed `.deb` from [Releases](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/releases). **We strongly recommend verifying it first** — see [Verifying a release](#verifying-a-release) below.
+Download the latest signed `.deb` from [Releases](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/releases). **It's strongly recommended to verify it first** — see [Verifying a release](#verifying-a-release) below.
 
 Via apt (**recommended over dpkg**, because it automatically resolves dependencies):
 ```bash
