@@ -41,27 +41,7 @@ This `.deb` package is provided **as-is**, without warranty or guarantee of func
 
 ## Installation
 
-### Option A — APT repository (recommended)
-
-Adds a real package source: future Ghidra updates arrive via `apt upgrade`, no manual re-download needed. The build is automated and re-checked daily against upstream — see [Update policy](#update-policy).
-
-```bash
-# 1. Add the signing key
-curl -fsSL https://rob1c.github.io/Unofficial-Ghidra-Deb-Package/ghidra-deb-signing-key.asc \
-  | sudo gpg --dearmor -o /usr/share/keyrings/ghidra-deb.gpg
-
-# 2. Add the repository
-echo "deb [signed-by=/usr/share/keyrings/ghidra-deb.gpg] https://rob1c.github.io/Unofficial-Ghidra-Deb-Package stable main" \
-  | sudo tee /etc/apt/sources.list.d/ghidra-deb.list
-
-# 3. Install
-sudo apt update
-sudo apt install ghidra
-```
-
-### Option B — Single signed `.deb`
-
-Download the latest `.deb` from [Releases](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/releases). **We strongly recommend verifying it first** — see [Verifying a release](#verifying-a-release) below.
+Download the latest signed `.deb` from [Releases](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/releases). **We strongly recommend verifying it first** — see [Verifying a release](#verifying-a-release) below.
 
 Via apt (**recommended over dpkg**, because it automatically resolves dependencies):
 ```bash
@@ -72,6 +52,8 @@ Or via dpkg:
 sudo dpkg -i ./ghidra_[version]_amd64.deb
 sudo apt -f install   # resolve any missing dependencies
 ```
+
+> **Note:** a full APT repository (so updates arrive via `apt upgrade`) is planned but not available yet. For now, check [Releases](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/releases) for new versions.
 
 ## Compatibility
 This package was developed and tested under `Ubuntu 24.04.3 LTS x86_64` and `Debian 13 "Trixie" (Stable)`, but it should work fine under every Debian-based system.
@@ -91,16 +73,17 @@ This is a third-party package — not an official NSA/Ghidra or Debian artifact.
 | **Will it stay up to date?** | CI checks daily for new upstream Ghidra releases and rebuilds automatically — see [Update policy](#update-policy) | Check the [Actions tab](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/actions) for the scheduled run history |
 | **Who is responsible for this?** | Maintained by [@Rob1c](https://github.com/Rob1c), single maintainer, no anonymous publishing | Commit history and release authorship are public |
 
-**Signing key fingerprint:** `XXXX XXXX XXXX XXXX XXXX  XXXX XXXX XXXX XXXX XXXX`
-Public key: [`ghidra-deb-signing-key.asc`](https://rob1c.github.io/Unofficial-Ghidra-Deb-Package/ghidra-deb-signing-key.asc) · also published on [keyserver.ubuntu.com](https://keyserver.ubuntu.com)
-
-> Publishing the key in two independent places (this repo's APT publish branch and a public keyserver) means a compromise of one doesn't let an attacker silently replace the other without it being noticeable.
+**Signing key fingerprint:** `E1D0 D608 02FA D2B2 578E  5CF4 7649 81E0 7F0E EC38`
+Public key: [`ghidra-deb-signing-key.asc`](https://github.com/Rob1c/Unofficial-Ghidra-Deb-Package/blob/main/ghidra-deb-signing-key.asc) · also published on [keyserver.ubuntu.com](https://keyserver.ubuntu.com/pks/lookup?search=E1D0D60802FAD2B2578E5CF4764981E07F0EEC38&op=index)
 
 ### Verifying a release
 
 ```bash
 # Import the key once
-curl -fsSL https://rob1c.github.io/Unofficial-Ghidra-Deb-Package/ghidra-deb-signing-key.asc | gpg --import
+curl -fsSL https://raw.githubusercontent.com/Rob1c/Unofficial-Ghidra-Deb-Package/main/ghidra-deb-signing-key.asc | gpg --import
+
+# Verify the fingerprint matches BEFORE trusting it
+gpg --fingerprint E1D0D60802FAD2B2578E5CF4764981E07F0EEC38
 
 # Verify the .deb against its signature
 gpg --verify ghidra_<version>_amd64.deb.asc ghidra_<version>_amd64.deb
