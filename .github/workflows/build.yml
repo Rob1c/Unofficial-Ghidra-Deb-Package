@@ -45,7 +45,7 @@ jobs:
         run: |
           TAG=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.tag_name // empty')
           VERSION=$(echo "$TAG" | sed 's/^v//')
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
 
       # compare versions and trigger
       - name: Compare Versions and Trigger
